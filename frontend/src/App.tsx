@@ -10,7 +10,6 @@ const Login = React.lazy(() => import('./pages/Login'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Channels = React.lazy(() => import('./pages/Channels'));
 const AdminLogin = React.lazy(() => import('./pages/AdminLogin'));
-const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 const About = React.lazy(() => import('./pages/About'));
 const Register = React.lazy(() => import('./pages/Register'));
 const Privacy = React.lazy(() => import('./pages/Privacy'));
@@ -62,7 +61,6 @@ const AnimatedRoutes = () => {
         
         {/* Admin routes */}
         <Route path="/admin" element={<PageTransition><AdminLogin /></PageTransition>} />
-        <Route path="/admin/dashboard" element={<PageTransition><AdminDashboard /></PageTransition>} />
         
         {/* Static pages */}
         <Route path="/about" element={<PageTransition><About /></PageTransition>} />
