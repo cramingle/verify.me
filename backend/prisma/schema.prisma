@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ChannelType {
+  X
+  TELEGRAM
+  WEBSITE
+  EMAIL
+  PHONE
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  INACTIVE
+  CANCELLED
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  REJECTED
+}
+
+model Company {
+  id                String            @id @default(uuid())
+  name              String
+  email             String            @unique
+  password          String            // Will be hashed, not encrypted
+  subscriptionStatus SubscriptionStatus @default(TRIAL)
+  stripeCustomerId  String?           // For Stripe integration
+  encryptedData     String?           // For sensitive company data
+  isVerified        Boolean           @default(false) // Email verification status
+  verificationToken String?           // Email verification token
+  verificationTokenExpires DateTime?  // When the verification token expires
+  resetToken        String?           // Password reset token
+  resetTokenExpires DateTime?         // When the reset token expires
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  channels          Channel[]
+  verificationLogs  VerificationLog[]
+
+  @@index([email])
+  @@index([subscriptionStatus])
+}
+
+model Channel {
+  id          String      @id @default(uuid())
+  companyId   String
+  type        ChannelType
+  value       String      // Encrypted channel value
+  verified    Boolean     @default(false)
+  verifiedAt  DateTime?
+  createdAt   DateTime    @default(now())
+  company     Company     @relation(fields: [companyId], references: [id])
+  verificationLogs VerificationLog[]
+
+  @@index([companyId])
+  @@index([type])
+  @@index([verified])
+}
+
+model VerificationLog {
+  id          String    @id @default(uuid())
+  channelId   String
+  companyId   String
+  inputValue  String    // What the user entered
+  matched     Boolean   // Whether it matched
+  ipAddress   String    // For analytics
+  createdAt   DateTime  @default(now())
+  channel     Channel   @relation(fields: [channelId], references: [id], map: "VerificationLog_channelId_fkey")
+  company     Company   @relation(fields: [companyId], references: [id], map: "VerificationLog_companyId_fkey")
+
+  @@index([channelId])
+  @@index([companyId])
+  @@index([createdAt])
+  @@index([matched])
+}
+
+model Report {
+  id              String      @id @default(uuid())
+  reporterName    String
+  reportedChannel String
+  reason          String      @db.Text
+  status          ReportStatus @default(PENDING)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Contact {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  company   String?
+  message   String   @db.Text
+  status    String   @default("new") // new, read, replied
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+} 
