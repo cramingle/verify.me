@@ -20,6 +20,6 @@
   },
   "env": {
     "PORT": "8080",
-    "JWT_SECRET": "@jwt_secret"
+    "JWT_SECRET": "${JWT_SECRET}"
   }
 } 
