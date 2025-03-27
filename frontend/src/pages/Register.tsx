@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
+import { trackFormSubmission, trackRegistration, trackButtonClick, trackError } from '../utils/analytics';
 
 interface RegisterFormData {
   companyName: string;
@@ -31,6 +32,9 @@ const Register: React.FC = () => {
     setError(null);
     
     try {
+      // Track form submission start
+      trackFormSubmission('register_form', true);
+      
       // Send registration data to backend
       const response = await axios.post('/api/auth/register', {
         name: data.companyName,
@@ -40,12 +44,17 @@ const Register: React.FC = () => {
       
       setIsSubmitted(true);
       reset();
-      // Registration successful, JWT token might be in the response
-      // In a real app, you might want to store the token and redirect
-      // For now, we'll just show success message
+      
+      // Track successful registration
+      trackRegistration(true);
+      
     } catch (error: any) {
       console.error('Error during registration:', error);
       setError(error.response?.data?.message || 'Registration failed. Please try again.');
+      
+      // Track form submission error
+      trackError('registration_error', error.response?.data?.message || 'Registration failed');
+      trackRegistration(false);
     } finally {
       setIsSubmitting(false);
     }
@@ -70,13 +79,18 @@ const Register: React.FC = () => {
       
       {/* Header */}
       <header className="py-4 px-6 md:px-10 flex justify-between items-center relative z-10">
-        <Link to="/" className="text-amber-800 text-2xl font-bold">
+        <Link 
+          to="/" 
+          className="text-amber-800 text-2xl font-bold"
+          onClick={() => trackButtonClick('logo', 'Register')}
+        >
           Verify<span className="text-amber-500">.me</span>
         </Link>
         <div className="flex items-center space-x-6">
           <Link 
             to="/" 
             className="text-amber-700 font-medium hover:text-amber-900"
+            onClick={() => trackButtonClick('home', 'Register')}
           >
             Home
           </Link>
@@ -278,9 +292,27 @@ const Register: React.FC = () => {
               © 2025 Verify.me | Trust Made Simple
             </p>
             <div className="flex space-x-8">
-              <Link to="/about" className="text-amber-700 font-medium text-xs">About Us</Link>
-              <Link to="/privacy" className="text-amber-700 font-medium text-xs">Privacy</Link>
-              <Link to="/terms" className="text-amber-700 font-medium text-xs">Terms</Link>
+              <Link 
+                to="/about" 
+                className="text-amber-700 font-medium text-xs"
+                onClick={() => trackButtonClick('about_footer', 'Register')}
+              >
+                About Us
+              </Link>
+              <Link 
+                to="/privacy" 
+                className="text-amber-700 font-medium text-xs"
+                onClick={() => trackButtonClick('privacy_footer', 'Register')}
+              >
+                Privacy
+              </Link>
+              <Link 
+                to="/terms" 
+                className="text-amber-700 font-medium text-xs"
+                onClick={() => trackButtonClick('terms_footer', 'Register')}
+              >
+                Terms
+              </Link>
             </div>
           </div>
         </div>

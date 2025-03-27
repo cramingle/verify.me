@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { trackButtonClick, trackFeatureUsage } from '../utils/analytics';
 
 const About: React.FC = () => {
   return (
@@ -16,12 +17,17 @@ const About: React.FC = () => {
       
       {/* Header */}
       <header className="py-4 px-6 md:px-10 flex justify-between items-center relative z-10">
-        <Link to="/" className="text-deep-blue text-2xl font-bold">
+        <Link 
+          to="/" 
+          className="text-deep-blue text-2xl font-bold"
+          onClick={() => trackButtonClick('logo', 'About')}
+        >
           Verify<span className="text-gradient">.me</span>
         </Link>
         <Link 
           to="/signup" 
           className="bg-gradient-to-r from-gradient-start to-gradient-end text-white px-5 py-1.5 rounded-md font-medium transition-all duration-300 hover:shadow-md text-sm"
+          onClick={() => trackButtonClick('for_business', 'About')}
         >
           For Business
         </Link>
@@ -111,6 +117,10 @@ const About: React.FC = () => {
               <Link
                 to="/signup" 
                 className="inline-block bg-gradient-to-r from-gradient-start to-gradient-end text-white py-1.5 px-5 rounded-md font-medium text-sm"
+                onClick={() => {
+                  trackButtonClick('join_now', 'About');
+                  trackFeatureUsage('signup_from_about');
+                }}
               >
                 Join Now
               </Link>
@@ -127,9 +137,27 @@ const About: React.FC = () => {
               © 2025 Verify.me | Trust Made Simple
             </p>
             <div className="flex space-x-6">
-              <Link to="/" className="text-gradient-start text-xs font-medium">Home</Link>
-              <Link to="/privacy" className="text-gradient-start text-xs font-medium">Privacy</Link>
-              <Link to="/register" className="text-gradient-start text-xs font-medium">Contact</Link>
+              <Link 
+                to="/" 
+                className="text-gradient-start text-xs font-medium"
+                onClick={() => trackButtonClick('home_footer', 'About')}
+              >
+                Home
+              </Link>
+              <Link 
+                to="/privacy" 
+                className="text-gradient-start text-xs font-medium"
+                onClick={() => trackButtonClick('privacy_footer', 'About')}
+              >
+                Privacy
+              </Link>
+              <Link 
+                to="/register" 
+                className="text-gradient-start text-xs font-medium"
+                onClick={() => trackButtonClick('contact_footer', 'About')}
+              >
+                Contact
+              </Link>
             </div>
           </div>
         </div>

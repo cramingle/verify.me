@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
+import { trackVerification, trackButtonClick } from '../utils/analytics';
 import './Home.css'; // Import CSS file for animations
 
 interface VerifyFormData {
@@ -27,7 +28,9 @@ const Home: React.FC = () => {
       // Make API call to backend (simulated for now)
       // In a real app, this would be an actual API call
       setTimeout(() => {
-        if (['@companyx', 'companyx.com', 'telegram.me/companyx', '@kisra_fistya', 'kisra_fistya'].includes(inputValue.toLowerCase())) {
+        const isVerified = ['@companyx', 'companyx.com', 'telegram.me/companyx', '@kisra_fistya', 'kisra_fistya'].includes(inputValue.toLowerCase());
+        
+        if (isVerified) {
           const company = inputValue.toLowerCase().includes('kisra') ? 'KisraFistya Inc.' : 'Company X';
           setVerificationResult({
             verified: true,
@@ -40,6 +43,9 @@ const Home: React.FC = () => {
             inputValue: inputValue
           });
         }
+        
+        // Track the verification attempt
+        trackVerification(inputValue, isVerified);
         setIsLoading(false);
       }, 800);
     } catch (error) {
@@ -48,16 +54,21 @@ const Home: React.FC = () => {
         verified: false,
         inputValue: data.inputValue
       });
+      // Track the failed verification
+      trackVerification(data.inputValue, false);
       setIsLoading(false);
     }
   };
 
   const handleViewDetails = (inputValue: string) => {
-    // Target the main content container for animation instead of document.documentElement
+    // Target the main content container for animation
     const mainElement = document.querySelector('main');
     if (mainElement) {
       mainElement.classList.add('fadeout-bounce');
     }
+    
+    // Track the "Check detailed profile" button click
+    trackButtonClick('check_detailed_profile', 'Home');
     
     // Navigate after a short delay to allow the animation to play
     setTimeout(() => {
@@ -86,12 +97,14 @@ const Home: React.FC = () => {
           <Link 
             to="/about"
             className="text-gradient-start font-medium hover:opacity-80 transition-opacity"
+            onClick={() => trackButtonClick('how_it_works', 'Home')}
           >
             How it works
           </Link>
           <Link 
             to="/signup" 
             className="bg-gradient-to-r from-gradient-start to-gradient-end text-white px-6 py-2 rounded-md font-medium transition-all duration-300 hover:shadow-md"
+            onClick={() => trackButtonClick('for_business', 'Home')}
           >
             For Business
           </Link>

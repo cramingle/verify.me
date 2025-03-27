@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import PageTransition from './components/PageTransition';
+import { trackPageView } from './utils/analytics';
 
 // Page components
 const Home = React.lazy(() => import('./pages/Home'));
@@ -38,9 +39,10 @@ const NotFound = () => (
 const AnimatedRoutes = () => {
   const location = useLocation();
   
-  // Scroll to top on page change
+  // Scroll to top on page change and track page view
   useEffect(() => {
     window.scrollTo(0, 0);
+    trackPageView(location.pathname);
   }, [location.pathname]);
 
   return (
